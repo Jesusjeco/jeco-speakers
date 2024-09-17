@@ -28,9 +28,7 @@ The **Jeco Speakers Manager Plugin** allows you to manage speakers directly from
 
 ### Manual Installation
 
-1. Upload the plugin files to the `/wp-content/plugins/jeco-speakers-manager` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Navigate to **Jeco Speakers** in the WordPress admin menu to manage speakers.
+After updating ad Activating the plugin through the 'Plugins' screen in WordPress, navigate to **Jeco Speakers** in the WordPress admin menu to manage speakers.
 
 ### Requirements
 
@@ -44,11 +42,6 @@ The **Jeco Speakers Manager Plugin** allows you to manage speakers directly from
    - **Add** new speakers by filling out a simple form.
    - **Edit** existing speakers by modifying their details.
    - **Delete** speakers from the list with a confirmation prompt.
-
-## Screenshots
-
-1. **Speakers List** - Displays a list of all speakers with options to edit or delete.
-2. **Add/Edit Speaker Form** - Simple form for adding or updating speaker information.
 
 ## Security
 
