@@ -109,126 +109,22 @@ if (!class_exists('JECO_SPEAKERS')) {
 		 */
 		public function jeco_speakers_page(): void
 		{
-			// Delete
-			if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-				if (check_admin_referer('delete_speaker_' . (int)$_GET['id'])) {
-					$response = $this->crud->delete_speaker((int)$_GET['id']);
-					if ($response) {
-						echo '<div class="notice notice-success is-dismissible"><p>Speaker deleted successfully!</p></div>';
-					} else
-						echo '<div class="notice notice-error is-dismissible"><p>Failed to delete speaker. Please try again.</p></div>';
+			//Renders the files depending on th action send or none
+			if (isset($_GET['action'])) {
+				switch ($_GET['action']) {
+					case 'add':
+						include_once JECO_SPEAKERS_ROOT_PATH . 'views/create.php';
+						break;
+					case 'edit':
+						include_once JECO_SPEAKERS_ROOT_PATH . 'views/edit.php';
+						break;
+					default:
+						include_once JECO_SPEAKERS_ROOT_PATH . 'views/all.php';
+						break;
 				}
+			} else {
+				include_once JECO_SPEAKERS_ROOT_PATH . 'views/all.php';
 			}
-
-			// Edit
-			if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) {
-				$speaker_id = (int)$_GET['id'];
-
-				// Handle form submission for updating
-				if (isset($_POST['submit_edit_speaker']) && check_admin_referer('edit_speaker', 'edit_speaker_nonce')) {
-					$speaker_data = (object)[
-						'id' => $speaker_id,
-						'name' => sanitize_text_field($_POST['name']),
-						'last_name' => sanitize_text_field($_POST['last_name']),
-						'email' => sanitize_email($_POST['email']),
-						'phone' => sanitize_text_field($_POST['phone']),
-						'location' => sanitize_text_field($_POST['location']),
-					];
-
-					if ($this->crud->update_speaker($speaker_id, $speaker_data)) {
-						echo '<div class="notice notice-success is-dismissible"><p>Speaker updated successfully!</p></div>';
-					} else {
-						echo '<div class="notice notice-error is-dismissible"><p>Failed to update speaker. Please try again.</p></div>';
-					}
-				}
-
-				$speaker = $this->crud->get_speaker_by_id($speaker_id);
-				// Render form for editing
-				echo '<div class="wrap">';
-				echo '<h1>Edit Speaker</h1>';
-				echo '<form method="post">';
-				wp_nonce_field('edit_speaker', 'edit_speaker_nonce');
-				echo '<table class="form-table">';
-				echo '<tr><th>Name</th><td><input type="text" name="name" value="' . esc_attr($speaker->name) . '" required></td></tr>';
-				echo '<tr><th>Last Name</th><td><input type="text" name="last_name" value="' . esc_attr($speaker->last_name) . '" required></td></tr>';
-				echo '<tr><th>Email</th><td><input type="email" name="email" value="' . esc_attr($speaker->email) . '" required></td></tr>';
-				echo '<tr><th>Phone</th><td><input type="text" name="phone" value="' . esc_attr($speaker->phone) . '"></td></tr>';
-				echo '<tr><th>Location</th><td><input type="text" name="location" value="' . esc_attr($speaker->location) . '"></td></tr>';
-				echo '</table>';
-				echo '<p class="submit"><input type="submit" name="submit_edit_speaker" class="button-primary" value="Update Speaker"></p>';
-				echo '</form>';
-				echo '</div>';
-
-				return;
-			}
-
-			// Create
-			if (isset($_GET['action']) && $_GET['action'] === 'add') {
-				if (isset($_POST['submit_add_speaker']) && check_admin_referer('add_speaker', 'add_speaker_nonce')) {
-					// Handle form submission to add a new speaker
-					$speaker_data = (object)[
-						'name' => sanitize_text_field($_POST['name']),
-						'last_name' => sanitize_text_field($_POST['last_name']),
-						'email' => sanitize_email($_POST['email']),
-						'phone' => sanitize_text_field($_POST['phone']),
-						'location' => sanitize_text_field($_POST['location']),
-					];
-
-					if ($this->crud->create_speaker($speaker_data)) {
-						echo '<div class="notice notice-success is-dismissible"><p>Speaker added successfully!</p></div>';
-					} else {
-						echo '<div class="notice notice-error is-dismissible"><p>Failed to add speaker. Please try again.</p></div>';
-					}
-				}
-
-				// Render the form for adding a new speaker
-				echo '<div class="wrap">';
-				echo '<h1>Add New Speaker</h1>';
-				echo '<form method="post">';
-				wp_nonce_field('add_speaker', 'add_speaker_nonce');
-				echo '<table class="form-table">';
-				echo '<tr><th>Name</th><td><input type="text" name="name" required></td></tr>';
-				echo '<tr><th>Last Name</th><td><input type="text" name="last_name" required></td></tr>';
-				echo '<tr><th>Email</th><td><input type="email" name="email" required></td></tr>';
-				echo '<tr><th>Phone</th><td><input type="text" name="phone"></td></tr>';
-				echo '<tr><th>Location</th><td><input type="text" name="location"></td></tr>';
-				echo '</table>';
-				echo '<p class="submit"><input type="submit" name="submit_add_speaker" class="button-primary" value="Add Speaker"></p>';
-				echo '</form>';
-				echo '</div>';
-
-				return;
-			}
-
-			// Display the speakers list if no add/edit action is taken
-			$speakers = $this->crud->get_all_speakers();
-
-			echo '<div class="wrap">';
-			echo '<h1>Speakers List</h1>';
-
-			echo '<a href="?page=jeco-speakers&action=add" class="button-primary">Add New Speaker</a>';
-
-			// Display speakers in a table
-			echo '<table class="wp-list-table widefat fixed striped">';
-			echo '<thead><tr><th>Name</th><th>Last Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>';
-			echo '<tbody>';
-
-			foreach ($speakers as $speaker) {
-				echo '<tr>';
-				echo '<td>' . esc_html($speaker->name) . '</td>';
-				echo '<td>' . esc_html($speaker->last_name) . '</td>';
-				echo '<td>' . esc_html($speaker->email) . '</td>';
-				echo '<td>' . esc_html($speaker->phone) . '</td>';
-				echo '<td>';
-				echo '<a href="' . esc_url(wp_nonce_url('?page=jeco-speakers&action=edit&id=' . $speaker->id, 'edit_speaker_' . $speaker->id)) . '">Edit</a> | ';
-				echo '<a href="' . esc_url(wp_nonce_url('?page=jeco-speakers&action=delete&id=' . $speaker->id, 'delete_speaker_' . $speaker->id)) . '" onclick="return confirm(\'Are you sure you want to delete this speaker?\')">Delete</a>';
-				echo '</td>';
-				echo '</tr>';
-			}
-
-			echo '</tbody>';
-			echo '</table>';
-			echo '</div>';
 		} // jeco_speakers_page
 
 		/**
