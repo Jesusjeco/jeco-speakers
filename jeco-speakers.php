@@ -27,12 +27,6 @@ if (!class_exists('JECO_SPEAKERS')) {
 		public $crud;
 
 		/**
-		 * This variable will handle the crud, as an instance of the class JECO_SPEAKERS_API.
-		 * @var 
-		 */
-		public $api;
-
-		/**
 		 * Plugin version number.
 		 *
 		 * @var string
