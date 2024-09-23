@@ -27,6 +27,12 @@ if (!class_exists('JECO_SPEAKERS')) {
 		public $crud;
 
 		/**
+		 * This variable will handle the crud, as an instance of the class JECO_SPEAKERS_API.
+		 * @var 
+		 */
+		public $api;
+
+		/**
 		 * Plugin version number.
 		 *
 		 * @var string
@@ -67,6 +73,7 @@ if (!class_exists('JECO_SPEAKERS')) {
 		 */
 		public function include_files(): void
 		{
+			include_once plugin_dir_path(__FILE__) . 'include/speakers-api.php';
 			include_once plugin_dir_path(__FILE__) . 'include/speakers-crud.php';
 		}
 
@@ -86,6 +93,29 @@ if (!class_exists('JECO_SPEAKERS')) {
 			// Admin menu hook
 			add_action('admin_menu', [$this, 'jeco_speakers_admin_menu']);
 		}
+		/**
+		 * Activation function.
+		 *
+		 * This function is triggered when the plugin is activated.
+		 *
+		 * @return void
+		 */
+		public function activation_function(): void
+		{
+			// Creating the table
+			$this->crud->create_speakers_table();
+
+			// Call the function to fetch users and insert into the database
+			$this->fetch_and_insert_speakers();
+
+			add_action('rest_api_init', function () {
+				register_rest_route('jeco-speakers', "speakers", array(
+					'methods' => 'GET',
+					'callback' => [$this, 'get_speakers']
+
+				));
+			});
+		} //Activation hook
 
 		public function jeco_speakers_admin_menu(): void
 		{
@@ -126,30 +156,6 @@ if (!class_exists('JECO_SPEAKERS')) {
 				include_once JECO_SPEAKERS_ROOT_PATH . 'views/all.php';
 			}
 		} // jeco_speakers_page
-
-		/**
-		 * Activation function.
-		 *
-		 * This function is triggered when the plugin is activated.
-		 *
-		 * @return void
-		 */
-		public function activation_function(): void
-		{
-			// Creating the table
-			$this->crud->create_speakers_table();
-
-			// Call the function to fetch users and insert into the database
-			$this->fetch_and_insert_speakers();
-
-			add_action('rest_api_init', function () {
-				register_rest_route('jeco-speakers', "speakers", array(
-					'methods' => 'GET',
-					'callback' => [$this, 'get_speakers']
-
-				));
-			});
-		}
 
 		/**
 		 * Fetch users from randomuser.me and insert into the speakers table.
